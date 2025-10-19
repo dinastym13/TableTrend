@@ -1,0 +1,695 @@
+{\rtf1\ansi\ansicpg1251\cocoartf2865
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fnil\fcharset0 Menlo-Bold;\f1\fnil\fcharset0 Menlo-Regular;}
+{\colortbl;\red255\green255\blue255;\red155\green35\blue147;\red255\green255\blue255;\red0\green0\blue0;
+\red93\green108\blue121;\red196\green26\blue22;\red15\green104\blue160;\red28\green0\blue207;}
+{\*\expandedcolortbl;;\csgenericrgb\c60759\c13753\c57628;\csgenericrgb\c100000\c100000\c100000;\csgenericrgb\c0\c0\c0\c85000;
+\csgenericrgb\c36526\c42188\c47515;\csgenericrgb\c77000\c10200\c8600;\csgenericrgb\c5882\c40784\c62745;\csgenericrgb\c11000\c0\c81000;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\deftab593
+\pard\tx593\pardeftab593\partightenfactor0
+
+\f0\b\fs24 \cf2 \cb3 import
+\f1\b0 \cf4  os\
+
+\f0\b \cf2 import
+\f1\b0 \cf4  asyncio\
+
+\f0\b \cf2 import
+\f1\b0 \cf4  pandas 
+\f0\b \cf2 as
+\f1\b0 \cf4  pd\
+
+\f0\b \cf2 import
+\f1\b0 \cf4  matplotlib.pyplot 
+\f0\b \cf2 as
+\f1\b0 \cf4  plt\
+
+\f0\b \cf2 from
+\f1\b0 \cf4  prophet 
+\f0\b \cf2 import
+\f1\b0 \cf4  Prophet\
+
+\f0\b \cf2 from
+\f1\b0 \cf4  aiogram 
+\f0\b \cf2 import
+\f1\b0 \cf4  Bot, Dispatcher, types\
+
+\f0\b \cf2 from
+\f1\b0 \cf4  aiogram.filters 
+\f0\b \cf2 import
+\f1\b0 \cf4  Command\
+
+\f0\b \cf2 from
+\f1\b0 \cf4  aiogram.types 
+\f0\b \cf2 import
+\f1\b0 \cf4  InlineKeyboardMarkup, InlineKeyboardButton\
+
+\f0\b \cf2 from
+\f1\b0 \cf4  dotenv 
+\f0\b \cf2 import
+\f1\b0 \cf4  load_dotenv\
+
+\f0\b \cf2 from
+\f1\b0 \cf4  datetime 
+\f0\b \cf2 import
+\f1\b0 \cf4  datetime\
+\
+\cf5 # === \uc0\u1053 \u1072 \u1089 \u1090 \u1088 \u1086 \u1081 \u1082 \u1080  ===\cf4 \
+load_dotenv()\
+BOT_TOKEN = os.getenv(\cf6 "BOT_TOKEN"\cf4 )\
+DATA_FILE = \cf6 "data/data.csv"\cf4 \
+os.makedirs(\cf6 "data"\cf4 , exist_ok=
+\f0\b \cf2 True
+\f1\b0 \cf4 )\
+\
+bot = Bot(token=BOT_TOKEN)\
+dp = Dispatcher()\
+\
+\cf5 # === \uc0\u1052 \u1077 \u1089 \u1103 \u1094 \u1099  \u1085 \u1072  \u1088 \u1091 \u1089 \u1089 \u1082 \u1086 \u1084  ===\cf4 \
+months_ru = [\cf6 "\uc0\u1103 \u1085 \u1074 \u1072 \u1088 \u1100 "\cf4 ,\cf6 "\uc0\u1092 \u1077 \u1074 \u1088 \u1072 \u1083 \u1100 "\cf4 ,\cf6 "\uc0\u1084 \u1072 \u1088 \u1090 "\cf4 ,\cf6 "\uc0\u1072 \u1087 \u1088 \u1077 \u1083 \u1100 "\cf4 ,\cf6 "\uc0\u1084 \u1072 \u1081 "\cf4 ,\cf6 "\uc0\u1080 \u1102 \u1085 \u1100 "\cf4 ,\
+             \cf6 "\uc0\u1080 \u1102 \u1083 \u1100 "\cf4 ,\cf6 "\uc0\u1072 \u1074 \u1075 \u1091 \u1089 \u1090 "\cf4 ,\cf6 "\uc0\u1089 \u1077 \u1085 \u1090 \u1103 \u1073 \u1088 \u1100 "\cf4 ,\cf6 "\uc0\u1086 \u1082 \u1090 \u1103 \u1073 \u1088 \u1100 "\cf4 ,\cf6 "\uc0\u1085 \u1086 \u1103 \u1073 \u1088 \u1100 "\cf4 ,\cf6 "\uc0\u1076 \u1077 \u1082 \u1072 \u1073 \u1088 \u1100 "\cf4 ]\
+\
+\cf5 # === \uc0\u1043 \u1083 \u1072 \u1074 \u1085 \u1086 \u1077  \u1084 \u1077 \u1085 \u1102  ===\cf4 \
+
+\f0\b \cf2 def
+\f1\b0 \cf4  \cf7 main_menu\cf4 ():\
+    
+\f0\b \cf2 return
+\f1\b0 \cf4  InlineKeyboardMarkup(inline_keyboard=[\
+        [InlineKeyboardButton(text=\cf6 "\uc0\u55357 \u56522  \u1055 \u1088 \u1086 \u1075 \u1085 \u1086 \u1079  \u1085 \u1072  \u1084 \u1077 \u1089 \u1103 \u1094 "\cf4 , callback_data=\cf6 "forecast"\cf4 )],\
+        [InlineKeyboardButton(text=\cf6 "\uc0\u55357 \u56522  \u1055 \u1088 \u1086 \u1075 \u1085 \u1086 \u1079  \u1085 \u1072  \u1089 \u1083 \u1077 \u1076 \u1091 \u1102 \u1097 \u1080 \u1081  \u1084 \u1077 \u1089 \u1103 \u1094 "\cf4 , callback_data=\cf6 "forecast_next"\cf4 )],\
+        [InlineKeyboardButton(text=\cf6 "\uc0\u55357 \u56520  \u1040 \u1085 \u1072 \u1083 \u1080 \u1090 \u1080 \u1082 \u1072 "\cf4 , callback_data=\cf6 "analytics"\cf4 )],\
+        [InlineKeyboardButton(text=\cf6 "\uc0\u10133  \u1044 \u1086 \u1073 \u1072 \u1074 \u1080 \u1090 \u1100  \u1076 \u1072 \u1085 \u1085 \u1099 \u1077  \u1084 \u1077 \u1089 \u1103 \u1094 \u1072 "\cf4 , callback_data=\cf6 "add_data"\cf4 )],\
+        [InlineKeyboardButton(text=\cf6 "\uc0\u55358 \u56830  \u1055 \u1086 \u1082 \u1072 \u1079 \u1072 \u1090 \u1100  \u1076 \u1072 \u1085 \u1085 \u1099 \u1077 "\cf4 , callback_data=\cf6 "show_data"\cf4 )],\
+        [InlineKeyboardButton(text=\cf6 "\uc0\u55358 \u56825  \u1054 \u1095 \u1080 \u1089 \u1090 \u1080 \u1090 \u1100  \u1087 \u1088 \u1086 \u1075 \u1085 \u1086 \u1079 "\cf4 , callback_data=\cf6 "clear_forecast"\cf4 )]\
+    ])\
+\
+\cf5 # === /start ===\cf4 \
+@dp.message(Command(\cf6 "start"\cf4 ))\
+
+\f0\b \cf2 async
+\f1\b0 \cf4  
+\f0\b \cf2 def
+\f1\b0 \cf4  \cf7 start\cf4 (message: types.Message):\
+    
+\f0\b \cf2 await
+\f1\b0 \cf4  message.answer(\
+        \cf6 "\uc0\u55357 \u56395  \u1055 \u1088 \u1080 \u1074 \u1077 \u1090 ! \u1071  TableTrend \'97 \u1073 \u1086 \u1090  \u1076 \u1083 \u1103  \u1087 \u1088 \u1086 \u1075 \u1085 \u1086 \u1079 \u1072  \u1074 \u1099 \u1088 \u1091 \u1095 \u1082 \u1080  \u1088 \u1077 \u1089 \u1090 \u1086 \u1088 \u1072 \u1085 \u1072 .\\n\\n"\cf4 \
+        \cf6 "\uc0\u1071  \u1072 \u1085 \u1072 \u1083 \u1080 \u1079 \u1080 \u1088 \u1091 \u1102  \u1076 \u1072 \u1085 \u1085 \u1099 \u1077  \u1080  \u1089 \u1090 \u1088 \u1086 \u1102  \u1087 \u1088 \u1086 \u1075 \u1085 \u1086 \u1079  \u1085 \u1072  \u1089 \u1083 \u1077 \u1076 \u1091 \u1102 \u1097 \u1080 \u1081  \u1084 \u1077 \u1089 \u1103 \u1094  \u55357 \u56517 "\cf4 ,\
+        reply_markup=main_menu()\
+    )\
+\
+\cf5 # === \uc0\u1054 \u1095 \u1080 \u1089 \u1090 \u1082 \u1072  \u1075 \u1088 \u1072 \u1092 \u1080 \u1082 \u1086 \u1074  ===\cf4 \
+@dp.callback_query(
+\f0\b \cf2 lambda
+\f1\b0 \cf4  c: c.data == \cf6 "clear_forecast"\cf4 )\
+
+\f0\b \cf2 async
+\f1\b0 \cf4  
+\f0\b \cf2 def
+\f1\b0 \cf4  \cf7 clear_forecast\cf4 (callback: types.CallbackQuery):\
+    folder = \cf6 "data"\cf4 \
+    deleted = \cf8 0\cf4 \
+    
+\f0\b \cf2 for
+\f1\b0 \cf4  file 
+\f0\b \cf2 in
+\f1\b0 \cf4  os.listdir(folder):\
+        
+\f0\b \cf2 if
+\f1\b0 \cf4  file.startswith(\cf6 "forecast_"\cf4 ) 
+\f0\b \cf2 and
+\f1\b0 \cf4  file.endswith(\cf6 ".png"\cf4 ):\
+            os.remove(os.path.join(folder, file))\
+            deleted += \cf8 1\cf4 \
+    
+\f0\b \cf2 await
+\f1\b0 \cf4  callback.message.answer(f\cf6 "\uc0\u55358 \u56825  \u1059 \u1076 \u1072 \u1083 \u1077 \u1085 \u1086  \u1092 \u1072 \u1081 \u1083 \u1086 \u1074  \u1087 \u1088 \u1086 \u1075 \u1085 \u1086 \u1079 \u1086 \u1074 : \{deleted\}"\cf4 )\
+\
+\cf5 # === \uc0\u1055 \u1086 \u1082 \u1072 \u1079  \u1076 \u1072 \u1085 \u1085 \u1099 \u1093  ===\cf4 \
+@dp.callback_query(
+\f0\b \cf2 lambda
+\f1\b0 \cf4  c: c.data == \cf6 "show_data"\cf4 )\
+
+\f0\b \cf2 async
+\f1\b0 \cf4  
+\f0\b \cf2 def
+\f1\b0 \cf4  \cf7 show_data\cf4 (callback: types.CallbackQuery):\
+    
+\f0\b \cf2 if
+\f1\b0 \cf4  
+\f0\b \cf2 not
+\f1\b0 \cf4  os.path.exists(DATA_FILE):\
+        
+\f0\b \cf2 await
+\f1\b0 \cf4  callback.message.answer(\cf6 "\uc0\u9888 \u65039  \u1060 \u1072 \u1081 \u1083  \u1089  \u1076 \u1072 \u1085 \u1085 \u1099 \u1084 \u1080  \u1085 \u1077  \u1085 \u1072 \u1081 \u1076 \u1077 \u1085 ."\cf4 )\
+        
+\f0\b \cf2 return
+\f1\b0 \cf4 \
+    df = pd.read_csv(DATA_FILE)\
+    text = f\cf6 "\uc0\u55357 \u56517  \u1055 \u1086 \u1089 \u1083 \u1077 \u1076 \u1085 \u1080 \u1077  \u1089 \u1090 \u1088 \u1086 \u1082 \u1080 :\\n\\n\{df.tail(10).to_string(index=False)\}"\cf4 \
+    
+\f0\b \cf2 await
+\f1\b0 \cf4  callback.message.answer(f\cf6 "<pre>\{text\}</pre>"\cf4 , parse_mode=\cf6 "HTML"\cf4 )\
+\
+\cf5 # === \uc0\u1044 \u1086 \u1073 \u1072 \u1074 \u1083 \u1077 \u1085 \u1080 \u1077  \u1085 \u1086 \u1074 \u1099 \u1093  \u1076 \u1072 \u1085 \u1085 \u1099 \u1093  \u1084 \u1077 \u1089 \u1103 \u1094 \u1072  ===\cf4 \
+user_inputs = \{\}\
+\
+@dp.callback_query(
+\f0\b \cf2 lambda
+\f1\b0 \cf4  c: c.data == \cf6 "add_data"\cf4 )\
+
+\f0\b \cf2 async
+\f1\b0 \cf4  
+\f0\b \cf2 def
+\f1\b0 \cf4  \cf7 add_data\cf4 (callback: types.CallbackQuery):\
+    user_id = callback.from_user.id\
+    user_inputs[user_id] = \{\}\
+    
+\f0\b \cf2 await
+\f1\b0 \cf4  callback.message.answer(\cf6 "\uc0\u55357 \u56787  \u1042 \u1074 \u1077 \u1076 \u1080 \u1090 \u1077  \u1084 \u1077 \u1089 \u1103 \u1094  \u1080  \u1075 \u1086 \u1076  \u1074  \u1092 \u1086 \u1088 \u1084 \u1072 \u1090 \u1077 : `\u1054 \u1082 \u1090 \u1103 \u1073 \u1088 \u1100  2025`"\cf4 , parse_mode=\cf6 "Markdown"\cf4 )\
+\
+@dp.message()\
+
+\f0\b \cf2 async
+\f1\b0 \cf4  
+\f0\b \cf2 def
+\f1\b0 \cf4  \cf7 handle_message\cf4 (message: types.Message):\
+    user_id = message.from_user.id\
+    
+\f0\b \cf2 if
+\f1\b0 \cf4  user_id 
+\f0\b \cf2 not
+\f1\b0 \cf4  
+\f0\b \cf2 in
+\f1\b0 \cf4  user_inputs:\
+        
+\f0\b \cf2 return
+\f1\b0 \cf4 \
+    step = user_inputs[user_id]\
+\
+    
+\f0\b \cf2 if
+\f1\b0 \cf4  \cf6 "month"\cf4  
+\f0\b \cf2 not
+\f1\b0 \cf4  
+\f0\b \cf2 in
+\f1\b0 \cf4  step:\
+        month_text = message.text.strip()\
+        month_str = month_text.lower().split()[\cf8 0\cf4 ]\
+        
+\f0\b \cf2 if
+\f1\b0 \cf4  month_str 
+\f0\b \cf2 not
+\f1\b0 \cf4  
+\f0\b \cf2 in
+\f1\b0 \cf4  months_ru:\
+            
+\f0\b \cf2 await
+\f1\b0 \cf4  message.answer(\cf6 "\uc0\u10060  \u1052 \u1077 \u1089 \u1103 \u1094  \u1085 \u1077  \u1088 \u1072 \u1089 \u1087 \u1086 \u1079 \u1085 \u1072 \u1085 . \u1055 \u1086 \u1087 \u1088 \u1086 \u1073 \u1091 \u1081 \u1090 \u1077 , \u1085 \u1072 \u1087 \u1088 \u1080 \u1084 \u1077 \u1088 : \u1054 \u1082 \u1090 \u1103 \u1073 \u1088 \u1100  2025"\cf4 )\
+            
+\f0\b \cf2 return
+\f1\b0 \cf4 \
+        step[\cf6 "month"\cf4 ] = month_text\
+        
+\f0\b \cf2 await
+\f1\b0 \cf4  message.answer(\cf6 "\uc0\u55357 \u56496  \u1042 \u1074 \u1077 \u1076 \u1080 \u1090 \u1077  \u1089 \u1091 \u1084 \u1084 \u1091  \u1074 \u1099 \u1088 \u1091 \u1095 \u1082 \u1080  \u1079 \u1072  \u1084 \u1077 \u1089 \u1103 \u1094  (\u1085 \u1072 \u1087 \u1088 \u1080 \u1084 \u1077 \u1088 : 1234567):"\cf4 )\
+    
+\f0\b \cf2 elif
+\f1\b0 \cf4  \cf6 "revenue"\cf4  
+\f0\b \cf2 not
+\f1\b0 \cf4  
+\f0\b \cf2 in
+\f1\b0 \cf4  step:\
+        
+\f0\b \cf2 try
+\f1\b0 \cf4 :\
+            step[\cf6 "revenue"\cf4 ] = float(message.text.strip())\
+            
+\f0\b \cf2 await
+\f1\b0 \cf4  message.answer(\cf6 "\uc0\u55357 \u56421  \u1042 \u1074 \u1077 \u1076 \u1080 \u1090 \u1077  \u1082 \u1086 \u1083 \u1080 \u1095 \u1077 \u1089 \u1090 \u1074 \u1086  \u1075 \u1086 \u1089 \u1090 \u1077 \u1081  \u1079 \u1072  \u1084 \u1077 \u1089 \u1103 \u1094 :"\cf4 )\
+        
+\f0\b \cf2 except
+\f1\b0 \cf4  ValueError:\
+            
+\f0\b \cf2 await
+\f1\b0 \cf4  message.answer(\cf6 "\uc0\u10060  \u1042 \u1074 \u1077 \u1076 \u1080 \u1090 \u1077  \u1095 \u1080 \u1089 \u1083 \u1086 , \u1085 \u1072 \u1087 \u1088 \u1080 \u1084 \u1077 \u1088 : 1200000"\cf4 )\
+    
+\f0\b \cf2 elif
+\f1\b0 \cf4  \cf6 "guests"\cf4  
+\f0\b \cf2 not
+\f1\b0 \cf4  
+\f0\b \cf2 in
+\f1\b0 \cf4  step:\
+        
+\f0\b \cf2 try
+\f1\b0 \cf4 :\
+            step[\cf6 "guests"\cf4 ] = int(message.text.strip())\
+            
+\f0\b \cf2 await
+\f1\b0 \cf4  message.answer(\cf6 "\uc0\u55357 \u56499  \u1042 \u1074 \u1077 \u1076 \u1080 \u1090 \u1077  \u1089 \u1088 \u1077 \u1076 \u1085 \u1080 \u1081  \u1095 \u1077 \u1082  (\u1085 \u1072 \u1087 \u1088 \u1080 \u1084 \u1077 \u1088 : 845):"\cf4 )\
+        
+\f0\b \cf2 except
+\f1\b0 \cf4  ValueError:\
+            
+\f0\b \cf2 await
+\f1\b0 \cf4  message.answer(\cf6 "\uc0\u10060  \u1042 \u1074 \u1077 \u1076 \u1080 \u1090 \u1077  \u1094 \u1077 \u1083 \u1086 \u1077  \u1095 \u1080 \u1089 \u1083 \u1086  \u1075 \u1086 \u1089 \u1090 \u1077 \u1081 , \u1085 \u1072 \u1087 \u1088 \u1080 \u1084 \u1077 \u1088 : 1400"\cf4 )\
+    
+\f0\b \cf2 elif
+\f1\b0 \cf4  \cf6 "avg_check"\cf4  
+\f0\b \cf2 not
+\f1\b0 \cf4  
+\f0\b \cf2 in
+\f1\b0 \cf4  step:\
+        
+\f0\b \cf2 try
+\f1\b0 \cf4 :\
+            step[\cf6 "avg_check"\cf4 ] = float(message.text.strip())\
+\
+            month_text = step[\cf6 "month"\cf4 ]\
+            month_str = month_text.lower().split()[\cf8 0\cf4 ]\
+            month_num = months_ru.index(month_str) + \cf8 1\cf4 \
+            year = int(month_text.split()[\cf8 -1\cf4 ])\
+            ds = datetime(year, month_num, \cf8 1\cf4 ).strftime(\cf6 "%Y-%m-%d"\cf4 )\
+\
+            new_row = pd.DataFrame([\{\
+                \cf6 "ds"\cf4 : ds,\
+                \cf6 "revenue"\cf4 : step[\cf6 "revenue"\cf4 ],\
+                \cf6 "guests"\cf4 : step[\cf6 "guests"\cf4 ],\
+                \cf6 "avg_check"\cf4 : step[\cf6 "avg_check"\cf4 ]\
+            \}])\
+\
+            
+\f0\b \cf2 if
+\f1\b0 \cf4  os.path.exists(DATA_FILE):\
+                df = pd.read_csv(DATA_FILE)\
+                df[\cf6 "ds"\cf4 ] = pd.to_datetime(df[\cf6 "ds"\cf4 ])\
+                
+\f0\b \cf2 if
+\f1\b0 \cf4  ds 
+\f0\b \cf2 in
+\f1\b0 \cf4  df[\cf6 "ds"\cf4 ].dt.strftime(\cf6 "%Y-%m-%d"\cf4 ).values:\
+                    df.loc[df[\cf6 "ds"\cf4 ].dt.strftime(\cf6 "%Y-%m-%d"\cf4 ) == ds, [\cf6 "revenue"\cf4 ,\cf6 "guests"\cf4 ,\cf6 "avg_check"\cf4 ]] = step[\cf6 "revenue"\cf4 ], step[\cf6 "guests"\cf4 ], step[\cf6 "avg_check"\cf4 ]\
+                
+\f0\b \cf2 else
+\f1\b0 \cf4 :\
+                    df = pd.concat([df, new_row], ignore_index=
+\f0\b \cf2 True
+\f1\b0 \cf4 )\
+            
+\f0\b \cf2 else
+\f1\b0 \cf4 :\
+                df = new_row\
+            df.to_csv(DATA_FILE, index=
+\f0\b \cf2 False
+\f1\b0 \cf4 )\
+\
+            
+\f0\b \cf2 await
+\f1\b0 \cf4  message.answer(\
+                f\cf6 "\uc0\u9989  \u1044 \u1072 \u1085 \u1085 \u1099 \u1077  \u1076 \u1086 \u1073 \u1072 \u1074 \u1083 \u1077 \u1085 \u1099 :\\n\\n"\cf4 \
+                f\cf6 "\uc0\u55357 \u56787  \{step['month']\}\\n"\cf4 \
+                f\cf6 "\uc0\u55357 \u56496  \u1042 \u1099 \u1088 \u1091 \u1095 \u1082 \u1072 : \{int(step['revenue']):,\} \u8381 \\n"\cf4 \
+                f\cf6 "\uc0\u55357 \u56421  \u1043 \u1086 \u1089 \u1090 \u1080 : \{step['guests']\}\\n"\cf4 \
+                f\cf6 "\uc0\u55357 \u56499  \u1057 \u1088 \u1077 \u1076 \u1085 \u1080 \u1081  \u1095 \u1077 \u1082 : \{int(step['avg_check'])\} \u8381 \\n\\n"\cf4 \
+                f\cf6 "\uc0\u1058 \u1077 \u1087 \u1077 \u1088 \u1100  \u1084 \u1086 \u1078 \u1085 \u1086  \u1087 \u1086 \u1089 \u1090 \u1088 \u1086 \u1080 \u1090 \u1100  \u1087 \u1088 \u1086 \u1075 \u1085 \u1086 \u1079  \u55357 \u56393  /start"\cf4 ,\
+                parse_mode=\cf6 "HTML"\cf4 \
+            )\
+            
+\f0\b \cf2 del
+\f1\b0 \cf4  user_inputs[user_id]\
+        
+\f0\b \cf2 except
+\f1\b0 \cf4  ValueError:\
+            
+\f0\b \cf2 await
+\f1\b0 \cf4  message.answer(\cf6 "\uc0\u10060  \u1042 \u1074 \u1077 \u1076 \u1080 \u1090 \u1077  \u1082 \u1086 \u1088 \u1088 \u1077 \u1082 \u1090 \u1085 \u1086 \u1077  \u1095 \u1080 \u1089 \u1083 \u1086  \u1076 \u1083 \u1103  \u1089 \u1088 \u1077 \u1076 \u1085 \u1077 \u1075 \u1086  \u1095 \u1077 \u1082 \u1072 ."\cf4 )\
+\
+\cf5 # === \uc0\u1060 \u1091 \u1085 \u1082 \u1094 \u1080 \u1103  \u1087 \u1088 \u1086 \u1075 \u1085 \u1086 \u1079 \u1072  \u1089  \u1088 \u1091 \u1089 \u1089 \u1082 \u1080 \u1084 \u1080  \u1087 \u1086 \u1076 \u1087 \u1080 \u1089 \u1103 \u1084 \u1080  ===\cf4 \
+titles = \{\cf6 "revenue"\cf4 :\cf6 "\uc0\u1042 \u1099 \u1088 \u1091 \u1095 \u1082 \u1072 "\cf4 ,\cf6 "guests"\cf4 :\cf6 "\uc0\u1043 \u1086 \u1089 \u1090 \u1080 "\cf4 ,\cf6 "avg_check"\cf4 :\cf6 "\uc0\u1057 \u1088 \u1077 \u1076 \u1085 \u1080 \u1081  \u1095 \u1077 \u1082 "\cf4 \}\
+\
+
+\f0\b \cf2 def
+\f1\b0 \cf4  \cf7 forecast_metric\cf4 (monthly, metric):\
+    monthly = monthly.sort_values(\cf6 "ds"\cf4 ).reset_index(drop=
+\f0\b \cf2 True
+\f1\b0 \cf4 )\
+\
+    
+\f0\b \cf2 if
+\f1\b0 \cf4  metric 
+\f0\b \cf2 in
+\f1\b0 \cf4  [\cf6 "guests"\cf4 , \cf6 "avg_check"\cf4 ]:\
+        next_val = monthly[metric].tail(\cf8 2\cf4 ).mean()\
+        last_val = monthly[metric].iloc[\cf8 -1\cf4 ]\
+        diff = (next_val - last_val) / last_val * \cf8 100\cf4 \
+        trend = \cf6 "\uc0\u55357 \u56520  \u1056 \u1072 \u1089 \u1090 \u1077 \u1090 "\cf4  
+\f0\b \cf2 if
+\f1\b0 \cf4  next_val > last_val 
+\f0\b \cf2 else
+\f1\b0 \cf4  \cf6 "\uc0\u55357 \u56521  \u1055 \u1072 \u1076 \u1072 \u1077 \u1090 "\cf4 \
+\
+        last_6 = monthly[metric].tail(\cf8 6\cf4 )\
+        y_min = last_6.min()\
+        y_max = last_6.max()\
+\
+        plt.figure(figsize=(\cf8 7\cf4 ,\cf8 4\cf4 ))\
+        plt.plot(monthly[\cf6 "ds"\cf4 ], monthly[metric], marker=\cf6 "o"\cf4 , label=\cf6 "\uc0\u1060 \u1072 \u1082 \u1090 "\cf4 )\
+        plt.scatter(monthly[\cf6 "ds"\cf4 ].iloc[\cf8 -1\cf4 ], last_val, color=\cf8 'green'\cf4 , s=\cf8 100\cf4 , label=\cf6 "\uc0\u1055 \u1088 \u1086 \u1096 \u1083 \u1099 \u1081  \u1084 \u1077 \u1089 \u1103 \u1094 "\cf4 )\
+        next_month = monthly[\cf6 "ds"\cf4 ].iloc[\cf8 -1\cf4 ] + pd.DateOffset(months=\cf8 1\cf4 )\
+        plt.scatter(next_month, next_val, color=\cf8 'orange'\cf4 , s=\cf8 100\cf4 , label=\cf6 "\uc0\u1055 \u1088 \u1086 \u1075 \u1085 \u1086 \u1079 "\cf4 )\
+        plt.fill_between([next_month], y_min, y_max, color=\cf8 'orange'\cf4 , alpha=\cf8 0.2\cf4 )\
+        plt.title(f\cf6 "\{titles[metric]\}: \uc0\u1087 \u1088 \u1086 \u1075 \u1085 \u1086 \u1079  \u1085 \u1072  \u1089 \u1083 \u1077 \u1076 \u1091 \u1102 \u1097 \u1080 \u1081  \u1084 \u1077 \u1089 \u1103 \u1094  (\{trend\})"\cf4 )\
+        plt.xlabel(\cf6 "\uc0\u1052 \u1077 \u1089 \u1103 \u1094 "\cf4 )\
+        plt.ylabel(titles[metric])\
+        plt.ylim(\cf8 0\cf4 , max(monthly[metric].max(), y_max)*\cf8 1.2\cf4 )\
+        plt.legend()\
+        plt.tight_layout()\
+        img_path = f\cf6 "data/forecast_\{metric\}.png"\cf4 \
+        plt.savefig(img_path)\
+        plt.close()\
+\
+        caption = (\
+            f\cf6 "\{titles[metric]\}\\n\\n"\cf4 \
+            f\cf6 "\uc0\u55357 \u56622  \u1055 \u1088 \u1086 \u1075 \u1085 \u1086 \u1079 : \{int(next_val):,\}\\n"\cf4 \
+            f\cf6 "\uc0\u55357 \u56521  \u1052 \u1080 \u1085 \u1080 \u1084 \u1091 \u1084 : \{int(y_min):,\}\\n"\cf4 \
+            f\cf6 "\uc0\u55357 \u56520  \u1052 \u1072 \u1082 \u1089 \u1080 \u1084 \u1091 \u1084 : \{int(y_max):,\}\\n"\cf4 \
+            f\cf6 "\uc0\u55357 \u56522  \u1048 \u1079 \u1084 \u1077 \u1085 \u1077 \u1085 \u1080 \u1077 : \{diff:+.1f\}%\\n"\cf4 \
+            f\cf6 "\uc0\u55357 \u56481  \u1058 \u1088 \u1077 \u1085 \u1076 : \{trend\}"\cf4 \
+        ).replace(\cf6 ","\cf4 , \cf6 " "\cf4 )\
+        
+\f0\b \cf2 return
+\f1\b0 \cf4  img_path, caption\
+\
+    
+\f0\b \cf2 else
+\f1\b0 \cf4 :\
+        monthly[f\cf6 "\{metric\}_lag1"\cf4 ] = monthly[metric].shift(\cf8 1\cf4 )\
+        monthly[f\cf6 "\{metric\}_lag1"\cf4 ].fillna(monthly[metric].mean(), inplace=
+\f0\b \cf2 True
+\f1\b0 \cf4 )\
+        model = Prophet(yearly_seasonality=
+\f0\b \cf2 False
+\f1\b0 \cf4 , weekly_seasonality=
+\f0\b \cf2 False
+\f1\b0 \cf4 , daily_seasonality=
+\f0\b \cf2 False
+\f1\b0 \cf4 )\
+        model.add_regressor(f\cf6 "\{metric\}_lag1"\cf4 )\
+        df_model = monthly.rename(columns=\{metric: \cf6 "y"\cf4 \})[[\cf6 "ds"\cf4 , \cf6 "y"\cf4 , f\cf6 "\{metric\}_lag1"\cf4 ]]\
+        model.fit(df_model)\
+        future = model.make_future_dataframe(periods=\cf8 1\cf4 , freq=\cf6 "M"\cf4 )\
+        future[f\cf6 "\{metric\}_lag1"\cf4 ] = list(monthly[f\cf6 "\{metric\}_lag1"\cf4 ]) + [monthly[metric].iloc[\cf8 -1\cf4 ]]\
+        forecast_df = model.predict(future)\
+        last_val = monthly[metric].iloc[\cf8 -1\cf4 ]\
+        next_val = forecast_df[\cf6 "yhat"\cf4 ].iloc[\cf8 -1\cf4 ]\
+        diff = (next_val - last_val) / last_val * \cf8 100\cf4 \
+        trend = \cf6 "\uc0\u55357 \u56520  \u1056 \u1072 \u1089 \u1090 \u1077 \u1090 "\cf4  
+\f0\b \cf2 if
+\f1\b0 \cf4  next_val > last_val 
+\f0\b \cf2 else
+\f1\b0 \cf4  \cf6 "\uc0\u55357 \u56521  \u1055 \u1072 \u1076 \u1072 \u1077 \u1090 "\cf4 \
+\
+        plt.figure(figsize=(\cf8 7\cf4 ,\cf8 4\cf4 ))\
+        plt.plot(monthly[\cf6 "ds"\cf4 ], monthly[metric], marker=\cf6 "o"\cf4 , label=\cf6 "\uc0\u1060 \u1072 \u1082 \u1090 "\cf4 )\
+        plt.plot(forecast_df[\cf6 "ds"\cf4 ], forecast_df[\cf6 "yhat"\cf4 ], \cf6 "--"\cf4 , label=\cf6 "\uc0\u1055 \u1088 \u1086 \u1075 \u1085 \u1086 \u1079 "\cf4 , color=\cf6 "orange"\cf4 )\
+        plt.fill_between(forecast_df[\cf6 "ds"\cf4 ], forecast_df[\cf6 "yhat_lower"\cf4 ], forecast_df[\cf6 "yhat_upper"\cf4 ], color=\cf8 'orange'\cf4 , alpha=\cf8 0.2\cf4 )\
+        plt.scatter(monthly[\cf6 "ds"\cf4 ].iloc[\cf8 -1\cf4 ], last_val, color=\cf8 'green'\cf4 , s=\cf8 100\cf4 , label=\cf6 "\uc0\u1055 \u1088 \u1086 \u1096 \u1083 \u1099 \u1081  \u1084 \u1077 \u1089 \u1103 \u1094 "\cf4 )\
+        plt.title(f\cf6 "\{titles[metric]\}: \uc0\u1087 \u1088 \u1086 \u1075 \u1085 \u1086 \u1079  \u1085 \u1072  \u1089 \u1083 \u1077 \u1076 \u1091 \u1102 \u1097 \u1080 \u1081  \u1084 \u1077 \u1089 \u1103 \u1094  (\{trend\})"\cf4 )\
+        plt.xlabel(\cf6 "\uc0\u1052 \u1077 \u1089 \u1103 \u1094 "\cf4 )\
+        plt.ylabel(titles[metric])\
+        plt.ylim(\cf8 0\cf4 , max(monthly[metric].max(), forecast_df[\cf6 "yhat"\cf4 ].max())*\cf8 1.2\cf4 )\
+        plt.legend()\
+        plt.tight_layout()\
+        img_path = f\cf6 "data/forecast_\{metric\}.png"\cf4 \
+        plt.savefig(img_path)\
+        plt.close()\
+\
+        caption = (\
+            f\cf6 "\{titles[metric]\}\\n\\n"\cf4 \
+            f\cf6 "\uc0\u55357 \u56622  \u1055 \u1088 \u1086 \u1075 \u1085 \u1086 \u1079 : \{int(next_val):,\}\\n"\cf4 \
+            f\cf6 "\uc0\u55357 \u56521  \u1052 \u1080 \u1085 \u1080 \u1084 \u1091 \u1084 : \{int(forecast_df['yhat_lower'].iloc[-1]):,\}\\n"\cf4 \
+            f\cf6 "\uc0\u55357 \u56520  \u1052 \u1072 \u1082 \u1089 \u1080 \u1084 \u1091 \u1084 : \{int(forecast_df['yhat_upper'].iloc[-1]):,\}\\n"\cf4 \
+            f\cf6 "\uc0\u55357 \u56522  \u1048 \u1079 \u1084 \u1077 \u1085 \u1077 \u1085 \u1080 \u1077 : \{diff:+.1f\}%\\n"\cf4 \
+            f\cf6 "\uc0\u55357 \u56481  \u1058 \u1088 \u1077 \u1085 \u1076 : \{trend\}"\cf4 \
+        ).replace(\cf6 ","\cf4 , \cf6 " "\cf4 )\
+        
+\f0\b \cf2 return
+\f1\b0 \cf4  img_path, caption\
+\
+\cf5 # === \uc0\u1055 \u1088 \u1086 \u1075 \u1085 \u1086 \u1079  \u1085 \u1072  \u1084 \u1077 \u1089 \u1103 \u1094  ===\cf4 \
+@dp.callback_query(
+\f0\b \cf2 lambda
+\f1\b0 \cf4  c: c.data == \cf6 "forecast"\cf4 )\
+
+\f0\b \cf2 async
+\f1\b0 \cf4  
+\f0\b \cf2 def
+\f1\b0 \cf4  \cf7 forecast\cf4 (callback: types.CallbackQuery):\
+    
+\f0\b \cf2 if
+\f1\b0 \cf4  
+\f0\b \cf2 not
+\f1\b0 \cf4  os.path.exists(DATA_FILE):\
+        
+\f0\b \cf2 await
+\f1\b0 \cf4  callback.message.answer(\cf6 "\uc0\u9888 \u65039  \u1053 \u1077 \u1090  \u1076 \u1072 \u1085 \u1085 \u1099 \u1093  \u1076 \u1083 \u1103  \u1087 \u1088 \u1086 \u1075 \u1085 \u1086 \u1079 \u1072 ."\cf4 )\
+        
+\f0\b \cf2 return
+\f1\b0 \cf4 \
+\
+    df = pd.read_csv(DATA_FILE, parse_dates=[\cf6 "ds"\cf4 ])\
+    df[\cf6 "ds"\cf4 ] = pd.to_datetime(df[\cf6 "ds"\cf4 ])\
+    monthly = df.resample(\cf6 "M"\cf4 , on=\cf6 "ds"\cf4 ).agg(\{\cf6 "revenue"\cf4 :\cf6 "sum"\cf4 ,\cf6 "guests"\cf4 :\cf6 "sum"\cf4 ,\cf6 "avg_check"\cf4 :\cf6 "mean"\cf4 \}).reset_index()\
+    monthly = monthly.sort_values(\cf6 "ds"\cf4 ).reset_index(drop=
+\f0\b \cf2 True
+\f1\b0 \cf4 )\
+    monthly = monthly[[\cf6 "ds"\cf4 ,\cf6 "revenue"\cf4 ,\cf6 "guests"\cf4 ,\cf6 "avg_check"\cf4 ]]\
+\
+    
+\f0\b \cf2 if
+\f1\b0 \cf4  len(monthly) < \cf8 6\cf4 :\
+        
+\f0\b \cf2 await
+\f1\b0 \cf4  callback.message.answer(\cf6 "\uc0\u9888 \u65039  \u1053 \u1077 \u1076 \u1086 \u1089 \u1090 \u1072 \u1090 \u1086 \u1095 \u1085 \u1086  \u1076 \u1072 \u1085 \u1085 \u1099 \u1093  \u1076 \u1083 \u1103  \u1087 \u1088 \u1086 \u1075 \u1085 \u1086 \u1079 \u1072  (\u1085 \u1091 \u1078 \u1085 \u1086  \u1084 \u1080 \u1085 \u1080 \u1084 \u1091 \u1084  6 \u1084 \u1077 \u1089 \u1103 \u1094 \u1077 \u1074 )."\cf4 )\
+        
+\f0\b \cf2 return
+\f1\b0 \cf4 \
+\
+    metrics = [\cf6 "revenue"\cf4 , \cf6 "guests"\cf4 , \cf6 "avg_check"\cf4 ]\
+    
+\f0\b \cf2 for
+\f1\b0 \cf4  metric 
+\f0\b \cf2 in
+\f1\b0 \cf4  metrics:\
+        img, caption = forecast_metric(monthly, metric)\
+        
+\f0\b \cf2 await
+\f1\b0 \cf4  callback.message.answer_photo(photo=types.FSInputFile(img), caption=caption)\
+\
+\cf5 # === \uc0\u1055 \u1088 \u1086 \u1075 \u1085 \u1086 \u1079  \u1085 \u1072  \u1089 \u1083 \u1077 \u1076 \u1091 \u1102 \u1097 \u1080 \u1081  \u1084 \u1077 \u1089 \u1103 \u1094  \u1089  \u1087 \u1086 \u1089 \u1083 \u1077 \u1076 \u1085 \u1080 \u1084 \u1080  \u1076 \u1072 \u1085 \u1085 \u1099 \u1084 \u1080  ===\cf4 \
+@dp.callback_query(
+\f0\b \cf2 lambda
+\f1\b0 \cf4  c: c.data == \cf6 "forecast_next"\cf4 )\
+
+\f0\b \cf2 async
+\f1\b0 \cf4  
+\f0\b \cf2 def
+\f1\b0 \cf4  \cf7 forecast_next\cf4 (callback: types.CallbackQuery):\
+    
+\f0\b \cf2 if
+\f1\b0 \cf4  
+\f0\b \cf2 not
+\f1\b0 \cf4  os.path.exists(DATA_FILE):\
+        
+\f0\b \cf2 await
+\f1\b0 \cf4  callback.message.answer(\cf6 "\uc0\u9888 \u65039  \u1053 \u1077 \u1090  \u1076 \u1072 \u1085 \u1085 \u1099 \u1093  \u1076 \u1083 \u1103  \u1087 \u1088 \u1086 \u1075 \u1085 \u1086 \u1079 \u1072 ."\cf4 )\
+        
+\f0\b \cf2 return
+\f1\b0 \cf4 \
+\
+    df = pd.read_csv(DATA_FILE, parse_dates=[\cf6 "ds"\cf4 ])\
+    df[\cf6 "ds"\cf4 ] = pd.to_datetime(df[\cf6 "ds"\cf4 ])\
+    monthly = df.resample(\cf6 "M"\cf4 , on=\cf6 "ds"\cf4 ).agg(\{\cf6 "revenue"\cf4 :\cf6 "sum"\cf4 ,\cf6 "guests"\cf4 :\cf6 "sum"\cf4 ,\cf6 "avg_check"\cf4 :\cf6 "mean"\cf4 \}).reset_index()\
+    monthly = monthly.sort_values(\cf6 "ds"\cf4 ).reset_index(drop=
+\f0\b \cf2 True
+\f1\b0 \cf4 )\
+\
+    
+\f0\b \cf2 if
+\f1\b0 \cf4  len(monthly) < \cf8 2\cf4 :\
+        
+\f0\b \cf2 await
+\f1\b0 \cf4  callback.message.answer(\cf6 "\uc0\u9888 \u65039  \u1053 \u1077 \u1076 \u1086 \u1089 \u1090 \u1072 \u1090 \u1086 \u1095 \u1085 \u1086  \u1076 \u1072 \u1085 \u1085 \u1099 \u1093  \u1076 \u1083 \u1103  \u1087 \u1088 \u1086 \u1075 \u1085 \u1086 \u1079 \u1072  (\u1085 \u1091 \u1078 \u1085 \u1086  \u1084 \u1080 \u1085 \u1080 \u1084 \u1091 \u1084  2 \u1084 \u1077 \u1089 \u1103 \u1094 \u1072 )."\cf4 )\
+        
+\f0\b \cf2 return
+\f1\b0 \cf4 \
+\
+    next_month = monthly[\cf6 "ds"\cf4 ].iloc[\cf8 -1\cf4 ] + pd.DateOffset(months=\cf8 1\cf4 )\
+    next_month_str = next_month.strftime(\cf6 "%B %Y"\cf4 )\
+\
+    metrics = [\cf6 "revenue"\cf4 , \cf6 "guests"\cf4 , \cf6 "avg_check"\cf4 ]\
+    
+\f0\b \cf2 for
+\f1\b0 \cf4  metric 
+\f0\b \cf2 in
+\f1\b0 \cf4  metrics:\
+        
+\f0\b \cf2 if
+\f1\b0 \cf4  metric 
+\f0\b \cf2 in
+\f1\b0 \cf4  [\cf6 "guests"\cf4 , \cf6 "avg_check"\cf4 ]:\
+            next_val = monthly[metric].tail(\cf8 2\cf4 ).mean()\
+            last_val = monthly[metric].iloc[\cf8 -1\cf4 ]\
+            diff = (next_val - last_val) / last_val * \cf8 100\cf4 \
+            trend = \cf6 "\uc0\u55357 \u56520  \u1056 \u1072 \u1089 \u1090 \u1077 \u1090 "\cf4  
+\f0\b \cf2 if
+\f1\b0 \cf4  next_val > last_val 
+\f0\b \cf2 else
+\f1\b0 \cf4  \cf6 "\uc0\u55357 \u56521  \u1055 \u1072 \u1076 \u1072 \u1077 \u1090 "\cf4 \
+\
+            last_6 = monthly[metric].tail(\cf8 6\cf4 )\
+            y_min = last_6.min()\
+            y_max = last_6.max()\
+\
+            plt.figure(figsize=(\cf8 7\cf4 ,\cf8 4\cf4 ))\
+            plt.plot(monthly[\cf6 "ds"\cf4 ], monthly[metric], marker=\cf6 "o"\cf4 , label=\cf6 "\uc0\u1060 \u1072 \u1082 \u1090 "\cf4 )\
+            plt.scatter(monthly[\cf6 "ds"\cf4 ].iloc[\cf8 -1\cf4 ], last_val, color=\cf8 'green'\cf4 , s=\cf8 100\cf4 , label=\cf6 "\uc0\u1055 \u1088 \u1086 \u1096 \u1083 \u1099 \u1081  \u1084 \u1077 \u1089 \u1103 \u1094 "\cf4 )\
+            plt.scatter(next_month, next_val, color=\cf8 'orange'\cf4 , s=\cf8 100\cf4 , label=\cf6 "\uc0\u1055 \u1088 \u1086 \u1075 \u1085 \u1086 \u1079 "\cf4 )\
+            plt.fill_between([next_month], y_min, y_max, color=\cf8 'orange'\cf4 , alpha=\cf8 0.2\cf4 )\
+            plt.title(f\cf6 "\{titles[metric]\}: \uc0\u1087 \u1088 \u1086 \u1075 \u1085 \u1086 \u1079  \u1085 \u1072  \{next_month_str\} (\{trend\})"\cf4 )\
+            plt.xlabel(\cf6 "\uc0\u1052 \u1077 \u1089 \u1103 \u1094 "\cf4 )\
+            plt.ylabel(titles[metric])\
+            plt.ylim(\cf8 0\cf4 , max(monthly[metric].max(), y_max)*\cf8 1.2\cf4 )\
+            plt.legend()\
+            plt.tight_layout()\
+            img_path = f\cf6 "data/forecast_next_\{metric\}.png"\cf4 \
+            plt.savefig(img_path)\
+            plt.close()\
+\
+            caption = (\
+                f\cf6 "\{titles[metric]\} \'97 \uc0\u1087 \u1088 \u1086 \u1075 \u1085 \u1086 \u1079  \u1085 \u1072  \{next_month_str\}\\n\\n"\cf4 \
+                f\cf6 "\uc0\u55357 \u56622  \u1055 \u1088 \u1086 \u1075 \u1085 \u1086 \u1079 : \{int(next_val):,\}\\n"\cf4 \
+                f\cf6 "\uc0\u55357 \u56521  \u1052 \u1080 \u1085 \u1080 \u1084 \u1091 \u1084 : \{int(y_min):,\}\\n"\cf4 \
+                f\cf6 "\uc0\u55357 \u56520  \u1052 \u1072 \u1082 \u1089 \u1080 \u1084 \u1091 \u1084 : \{int(y_max):,\}\\n"\cf4 \
+                f\cf6 "\uc0\u55357 \u56522  \u1048 \u1079 \u1084 \u1077 \u1085 \u1077 \u1085 \u1080 \u1077 : \{diff:+.1f\}%\\n"\cf4 \
+                f\cf6 "\uc0\u55357 \u56481  \u1058 \u1088 \u1077 \u1085 \u1076 : \{trend\}"\cf4 \
+            ).replace(\cf6 ","\cf4 , \cf6 " "\cf4 )\
+            
+\f0\b \cf2 await
+\f1\b0 \cf4  callback.message.answer_photo(photo=types.FSInputFile(img_path), caption=caption)\
+        
+\f0\b \cf2 else
+\f1\b0 \cf4 :\
+            monthly[f\cf6 "\{metric\}_lag1"\cf4 ] = monthly[metric].shift(\cf8 1\cf4 )\
+            monthly[f\cf6 "\{metric\}_lag1"\cf4 ].fillna(monthly[metric].mean(), inplace=
+\f0\b \cf2 True
+\f1\b0 \cf4 )\
+            model = Prophet(yearly_seasonality=
+\f0\b \cf2 False
+\f1\b0 \cf4 , weekly_seasonality=
+\f0\b \cf2 False
+\f1\b0 \cf4 , daily_seasonality=
+\f0\b \cf2 False
+\f1\b0 \cf4 )\
+            model.add_regressor(f\cf6 "\{metric\}_lag1"\cf4 )\
+            df_model = monthly.rename(columns=\{metric: \cf6 "y"\cf4 \})[[\cf6 "ds"\cf4 , \cf6 "y"\cf4 , f\cf6 "\{metric\}_lag1"\cf4 ]]\
+            model.fit(df_model)\
+            future = model.make_future_dataframe(periods=\cf8 1\cf4 , freq=\cf6 "M"\cf4 )\
+            future[f\cf6 "\{metric\}_lag1"\cf4 ] = list(monthly[f\cf6 "\{metric\}_lag1"\cf4 ]) + [monthly[metric].iloc[\cf8 -1\cf4 ]]\
+            forecast_df = model.predict(future)\
+            last_val = monthly[metric].iloc[\cf8 -1\cf4 ]\
+            next_val = forecast_df[\cf6 "yhat"\cf4 ].iloc[\cf8 -1\cf4 ]\
+            diff = (next_val - last_val) / last_val * \cf8 100\cf4 \
+            trend = \cf6 "\uc0\u55357 \u56520  \u1056 \u1072 \u1089 \u1090 \u1077 \u1090 "\cf4  
+\f0\b \cf2 if
+\f1\b0 \cf4  next_val > last_val 
+\f0\b \cf2 else
+\f1\b0 \cf4  \cf6 "\uc0\u55357 \u56521  \u1055 \u1072 \u1076 \u1072 \u1077 \u1090 "\cf4 \
+\
+            plt.figure(figsize=(\cf8 7\cf4 ,\cf8 4\cf4 ))\
+            plt.plot(monthly[\cf6 "ds"\cf4 ], monthly[metric], marker=\cf6 "o"\cf4 , label=\cf6 "\uc0\u1060 \u1072 \u1082 \u1090 "\cf4 )\
+            plt.plot(forecast_df[\cf6 "ds"\cf4 ], forecast_df[\cf6 "yhat"\cf4 ], \cf6 "--"\cf4 , label=\cf6 "\uc0\u1055 \u1088 \u1086 \u1075 \u1085 \u1086 \u1079 "\cf4 , color=\cf6 "orange"\cf4 )\
+            plt.fill_between(forecast_df[\cf6 "ds"\cf4 ], forecast_df[\cf6 "yhat_lower"\cf4 ], forecast_df[\cf6 "yhat_upper"\cf4 ], color=\cf8 'orange'\cf4 , alpha=\cf8 0.2\cf4 )\
+            plt.scatter(monthly[\cf6 "ds"\cf4 ].iloc[\cf8 -1\cf4 ], last_val, color=\cf8 'green'\cf4 , s=\cf8 100\cf4 , label=\cf6 "\uc0\u1055 \u1088 \u1086 \u1096 \u1083 \u1099 \u1081  \u1084 \u1077 \u1089 \u1103 \u1094 "\cf4 )\
+            plt.title(f\cf6 "\{titles[metric]\}: \uc0\u1087 \u1088 \u1086 \u1075 \u1085 \u1086 \u1079  \u1085 \u1072  \{next_month_str\} (\{trend\})"\cf4 )\
+            plt.xlabel(\cf6 "\uc0\u1052 \u1077 \u1089 \u1103 \u1094 "\cf4 )\
+            plt.ylabel(titles[metric])\
+            plt.ylim(\cf8 0\cf4 , max(monthly[metric].max(), forecast_df[\cf6 "yhat"\cf4 ].max())*\cf8 1.2\cf4 )\
+            plt.legend()\
+            plt.tight_layout()\
+            img_path = f\cf6 "data/forecast_next_\{metric\}.png"\cf4 \
+            plt.savefig(img_path)\
+            plt.close()\
+\
+            caption = (\
+                f\cf6 "\{titles[metric]\} \'97 \uc0\u1087 \u1088 \u1086 \u1075 \u1085 \u1086 \u1079  \u1085 \u1072  \{next_month_str\}\\n\\n"\cf4 \
+                f\cf6 "\uc0\u55357 \u56622  \u1055 \u1088 \u1086 \u1075 \u1085 \u1086 \u1079 : \{int(next_val):,\}\\n"\cf4 \
+                f\cf6 "\uc0\u55357 \u56521  \u1052 \u1080 \u1085 \u1080 \u1084 \u1091 \u1084 : \{int(forecast_df['yhat_lower'].iloc[-1]):,\}\\n"\cf4 \
+                f\cf6 "\uc0\u55357 \u56520  \u1052 \u1072 \u1082 \u1089 \u1080 \u1084 \u1091 \u1084 : \{int(forecast_df['yhat_upper'].iloc[-1]):,\}\\n"\cf4 \
+                f\cf6 "\uc0\u55357 \u56522  \u1048 \u1079 \u1084 \u1077 \u1085 \u1077 \u1085 \u1080 \u1077 : \{diff:+.1f\}%\\n"\cf4 \
+                f\cf6 "\uc0\u55357 \u56481  \u1058 \u1088 \u1077 \u1085 \u1076 : \{trend\}"\cf4 \
+            ).replace(\cf6 ","\cf4 , \cf6 " "\cf4 )\
+            
+\f0\b \cf2 await
+\f1\b0 \cf4  callback.message.answer_photo(photo=types.FSInputFile(img_path), caption=caption)\
+\
+\cf5 # === \uc0\u1040 \u1085 \u1072 \u1083 \u1080 \u1090 \u1080 \u1082 \u1072  ===\cf4 \
+@dp.callback_query(
+\f0\b \cf2 lambda
+\f1\b0 \cf4  c: c.data == \cf6 "analytics"\cf4 )\
+
+\f0\b \cf2 async
+\f1\b0 \cf4  
+\f0\b \cf2 def
+\f1\b0 \cf4  \cf7 analytics\cf4 (callback: types.CallbackQuery):\
+    
+\f0\b \cf2 if
+\f1\b0 \cf4  
+\f0\b \cf2 not
+\f1\b0 \cf4  os.path.exists(DATA_FILE):\
+        
+\f0\b \cf2 await
+\f1\b0 \cf4  callback.message.answer(\cf6 "\uc0\u9888 \u65039  \u1053 \u1077 \u1090  \u1076 \u1072 \u1085 \u1085 \u1099 \u1093  \u1076 \u1083 \u1103  \u1072 \u1085 \u1072 \u1083 \u1080 \u1079 \u1072 ."\cf4 )\
+        
+\f0\b \cf2 return
+\f1\b0 \cf4 \
+\
+    df = pd.read_csv(DATA_FILE, parse_dates=[\cf6 "ds"\cf4 ])\
+    monthly = df.resample(\cf6 "M"\cf4 , on=\cf6 "ds"\cf4 ).agg(\{\cf6 "revenue"\cf4 :\cf6 "sum"\cf4 ,\cf6 "guests"\cf4 :\cf6 "sum"\cf4 ,\cf6 "avg_check"\cf4 :\cf6 "mean"\cf4 \}).reset_index()\
+\
+    avg_rev = monthly[\cf6 "revenue"\cf4 ].mean()\
+    avg_guests = monthly[\cf6 "guests"\cf4 ].mean()\
+    avg_check = monthly[\cf6 "avg_check"\cf4 ].mean()\
+    best_month = monthly.loc[monthly[\cf6 "revenue"\cf4 ].idxmax(), \cf6 "ds"\cf4 ].strftime(\cf6 "%B %Y"\cf4 )\
+    worst_month = monthly.loc[monthly[\cf6 "revenue"\cf4 ].idxmin(), \cf6 "ds"\cf4 ].strftime(\cf6 "%B %Y"\cf4 )\
+\
+    text = (\
+        f\cf6 "\uc0\u55357 \u56522  \u1040 \u1085 \u1072 \u1083 \u1080 \u1090 \u1080 \u1082 \u1072  \u1087 \u1086  \u1084 \u1077 \u1089 \u1103 \u1094 \u1072 \u1084 :\\n\\n"\cf4 \
+        f\cf6 "\uc0\u55357 \u56496  \u1057 \u1088 \u1077 \u1076 \u1085 \u1103 \u1103  \u1074 \u1099 \u1088 \u1091 \u1095 \u1082 \u1072 : \{int(avg_rev):,\} \u8381 \\n"\cf4 \
+        f\cf6 "\uc0\u55357 \u56421  \u1057 \u1088 \u1077 \u1076 \u1085 \u1077 \u1077  \u1082 \u1086 \u1083 -\u1074 \u1086  \u1075 \u1086 \u1089 \u1090 \u1077 \u1081 : \{int(avg_guests)\}\\n"\cf4 \
+        f\cf6 "\uc0\u55357 \u56499  \u1057 \u1088 \u1077 \u1076 \u1085 \u1080 \u1081  \u1095 \u1077 \u1082 : \{int(avg_check)\} \u8381 \\n\\n"\cf4 \
+        f\cf6 "\uc0\u55356 \u57286  \u1051 \u1091 \u1095 \u1096 \u1080 \u1081  \u1084 \u1077 \u1089 \u1103 \u1094 : \{best_month\}\\n"\cf4 \
+        f\cf6 "\uc0\u55357 \u56521  \u1057 \u1083 \u1072 \u1073 \u1077 \u1081 \u1096 \u1080 \u1081  \u1084 \u1077 \u1089 \u1103 \u1094 : \{worst_month\}"\cf4 \
+    ).replace(\cf6 ","\cf4 , \cf6 " "\cf4 )\
+\
+    
+\f0\b \cf2 await
+\f1\b0 \cf4  callback.message.answer(text)\
+\
+\cf5 # === \uc0\u1047 \u1072 \u1087 \u1091 \u1089 \u1082  ===\cf4 \
+
+\f0\b \cf2 async
+\f1\b0 \cf4  
+\f0\b \cf2 def
+\f1\b0 \cf4  \cf7 main\cf4 ():\
+    print(\cf6 "\uc0\u9989  TableTrend \u1079 \u1072 \u1087 \u1091 \u1097 \u1077 \u1085 !"\cf4 )\
+    
+\f0\b \cf2 await
+\f1\b0 \cf4  dp.start_polling(bot)\
+\
+
+\f0\b \cf2 if
+\f1\b0 \cf4  __name__ == \cf6 "__main__"\cf4 :\
+    asyncio.run(main())\
+}
